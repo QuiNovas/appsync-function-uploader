@@ -9,7 +9,7 @@ app_name = 'appsync-function-uploader'
 # Versions should comply with PEP440.  For a discussion on single-sourcing
 # the version across setup.py and the project code, see
 # https://packaging.python.org/en/latest/single_source_version.html
-app_version = '0.0.4'
+app_version = '0.0.5'
 
 app_description = 'Creates or updates an AWS AppSync function'
 
@@ -35,7 +35,7 @@ setup(
     version=app_version,
 
     description=app_description,
-    long_description=pypandoc.convert_text('README.md', 'rst', format='markdown'),
+    long_description=pypandoc.convert_file('README.md', 'rst', format='markdown'),
 
     url='https://github.com/QuiNovas/appsync-function-uploader',
 
