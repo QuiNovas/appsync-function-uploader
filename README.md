@@ -19,5 +19,5 @@ python -m appsync_function_uploader --aws-access-key-id accesskey --aws-secret-a
 - **name** The Function name - does not have to be unique, but it is highly recommended
 - **description** The Function description
 - **datasource-name** The name of the AppSync data source for which the function is being created
-- **request-mapping-template** The request mapping VTL file to upload
-- **response-mapping-template** The response mapping VTL file to upload
+- **request-mapping-template** The request mapping VTL file to upload - Optional if the datasource is a Lambda
+- **response-mapping-template** The response mapping VTL file to upload - Optional if the datasource is a Lambda
