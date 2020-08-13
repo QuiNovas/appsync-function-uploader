@@ -48,11 +48,11 @@ def _parse_command_line_arguments():
     )
     argv_parser.add_argument(
         '--request-mapping-template',
-        help='The request mapping VTL file to upload'
+        help='The request mapping VTL file to upload - Optional if the datasource is a Lamba'
     )
     argv_parser.add_argument(
         '--response-mapping-template',
-        help='The response mapping VTL file to upload'
+        help='The response mapping VTL file to upload - Optional if the datasource is a Lamba'
     )
     return argv_parser.parse_args()
 
@@ -65,10 +65,14 @@ def main():
         logging.getLogger('botocore').setLevel(logging.ERROR)
         logging.getLogger('boto3').setLevel(logging.ERROR)
 
-        with open(args.request_mapping_template) as vtl:
-            request_mapping_template = vtl.read()
-        with open(args.response_mapping_template) as vtl:
-            response_mapping_template = vtl.read()
+        request_mapping_template = None
+        response_mapping_template = None
+        if args.request_mapping_template:
+            with open(args.request_mapping_template) as vtl:
+                request_mapping_template = vtl.read()
+        if args.response_mapping_template:
+            with open(args.response_mapping_template) as vtl:
+                response_mapping_template = vtl.read()
 
         appsync = boto3.client(
             'appsync',
@@ -77,32 +81,28 @@ def main():
             region_name=args.aws_region
         )
 
+        action = appsync.create_function
+        kwargs = {
+            'apiId': args.api_id,
+            'name': args.name,
+            'description' : args.description,
+            'dataSourceName' : args.datasource_name,
+            'functionVersion' : '2018-05-29'
+        }
+        if request_mapping_template and response_mapping_template:
+            kwargs['requestMappingTemplate'] = request_mapping_template
+            kwargs['responseMappingTemplate'] = response_mapping_template
+        elif request_mapping_template or response_mapping_template:
+            raise ValueError('request-mapping-template and response-mapping-template must either both be present or both be absent')
         print('Searching for existing function')
         function_id = _find_function(appsync, args.api_id, args.name, args.datasource_name)
         if function_id:
             print('Found function, updating')
-            response = appsync.update_function(
-                apiId=args.api_id,
-                name=args.name,
-                description=args.description,
-                functionId=function_id,
-                dataSourceName=args.datasource_name,
-                requestMappingTemplate=request_mapping_template,
-                responseMappingTemplate=response_mapping_template,
-                functionVersion='2018-05-29'
-            )
+            action = appsync.update_function
+            kwargs['functionId'] = function_id
         else:
             print('Function does not exist, creating')
-            response = appsync.create_function(
-                apiId=args.api_id,
-                name=args.name,
-                description=args.description,
-                dataSourceName=args.datasource_name,
-                requestMappingTemplate=request_mapping_template,
-                responseMappingTemplate=response_mapping_template,
-                functionVersion='2018-05-29'
-            )
-        print('Function upload complete\n', json.dumps(response, indent=4, sort_keys=True))
+        print('Function upload complete\n', json.dumps(action(**kwargs), indent=4, sort_keys=True))
     except KeyboardInterrupt:
         print('Service interrupted', file=sys.stderr)
     except Exception as e:
