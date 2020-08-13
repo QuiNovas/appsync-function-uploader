@@ -1,6 +1,9 @@
 from setuptools import setup, find_packages
 
 
+with open('README.md') as readme:
+    long_description = readme.read()
+
 # TODO: Change the following variables to match your app
 app_name = 'appsync-function-uploader'
 
@@ -33,7 +36,7 @@ setup(
     version=app_version,
 
     description=app_description,
-    long_description=app_description,
+    long_description=long_description,
 
     url='https://github.com/QuiNovas/appsync-function-uploader',
 
