@@ -35,7 +35,7 @@ setup(
     description=app_description,
     long_description=app_description,
 
-    url='https://github.com/QuiNovas/appsync-resolver-uploader',
+    url='https://github.com/QuiNovas/appsync-function-uploader',
 
     author='Joseph Wortmann',
     author_email='joseph.wortmann@gmail.com',
